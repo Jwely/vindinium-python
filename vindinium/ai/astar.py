@@ -5,8 +5,9 @@ __all__ = ['AStar']
 
 DIR_NEIGHBORS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
+
 class AStar(object):
-    '''A* algorithm specialized for vindinium.
+    """A* algorithm specialized for vindinium.
 
     The A* algorithm receives an instance of ``vindinium.models.Map``` and  
     compute the best path when necessary. 
@@ -17,7 +18,8 @@ class AStar(object):
         cost_move (float): cost to walk over an empty tile. Defaults to 1.
         obstacle_tiles (list): a list of obstacles tile VALUES.
         avoid_tiles (list): a list of avoidable tile VALUES.
-    '''
+    """
+
     def __init__(self, map):
         '''Constructor.
 
@@ -29,6 +31,7 @@ class AStar(object):
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
         self.avoid_tiles = [vin.TILE_SPAWN]
         self._map = map
+
 
     def find(self, x0, y0, x1, y1):
         '''Find a path between (x0, y0) and (x1, y1).
@@ -89,6 +92,7 @@ class AStar(object):
         result.pop(0)
 
         return result
+
 
     def __neighbors(self, x, y, visited):
         '''Get the valid neighbors of a tile.'''

@@ -4,7 +4,7 @@ from vindinium.models import Game
 __all__ = ['BaseBot']
 
 class BaseBot(RawBot):
-    '''Base bot.
+    """ Base bot.
 
     Attributes:
         id (int): the bot's id.
@@ -12,14 +12,14 @@ class BaseBot(RawBot):
         hero (vindinium.models.Hero): the bot's hero instance, updated by this 
           object.
         state (dict): the unprocessed state from server.
-    '''
+    """
     id = None
     state = None
     game = None
     hero = None
 
     def _start(self, state):
-        '''Wrapper to start method.'''
+        """ Wrapper to start method """
         self.id = state['hero']['id']
         self.state = state
         self.game = Game(state)
@@ -27,12 +27,12 @@ class BaseBot(RawBot):
         self.start()
 
     def _move(self, state):
-        '''Wrapper to move method.'''
+        """ Wrapper to move method."""
         self.state = state
         self.game.update(state)
         return self.move()
 
     def _end(self):
-        '''Wrapper to end method.'''
+        """ Wrapper to end method."""
         self.end()
         

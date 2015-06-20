@@ -1,7 +1,8 @@
 __all__ = ['RawBot']
 
+
 class RawBot(object):
-    '''Raw bot. This bot does not process the state.
+    """ Raw bot. This bot does not process the state.
 
     Implement the following methods to use:
 
@@ -12,33 +13,34 @@ class RawBot(object):
     Attributes:
         id (int): the bot's id.
         state (dict): the unprocessed state from server.
-    '''
+    """
+
     id = None
     state = None
 
     def _start(self, state):
-        '''Wrapper to start method.'''
+        """Wrapper to start method."""
         self.id = state['hero']['id']
         self.state = state
         self.start()
 
     def _move(self, state):
-        '''Wrapper to move method.'''
+        """Wrapper to move method."""
         self.state = state
         return self.move()
 
     def _end(self):
-        '''Wrapper to end method.'''
+        """Wrapper to end method."""
         self.end()
         
     def start(self):
-        '''Called when the game starts.'''
+        """Called when the game starts."""
         pass
 
     def move(self):
-        '''Called when the game requests a move from this bot.'''
+        """Called when the game requests a move from this bot."""
         pass
 
     def end(self):
-        '''Called after the game finishes.'''
+        """Called after the game finishes."""
         pass

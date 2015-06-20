@@ -3,9 +3,9 @@ import vindinium as vin
 from vindinium.bots import BaseBot
 from vindinium.ai import AStar
 
-__all__ = ['MinerBot']
+__all__ = ['HunterBot']
 
-class MinerBot(BaseBot):
+class HunterBot(BaseBot):
     """ this bots primary objective is to mine """
     
     search = None
@@ -53,6 +53,12 @@ class MinerBot(BaseBot):
 
         return self._random()
 
+    def _select_target(self):
+        """ chooses a player to hunt down """
+
+
+    def _determine_target_value(self, hero):
+        pass
 
     def _go_to(self, x_, y_):
         x = self.hero.x
@@ -69,6 +75,7 @@ class MinerBot(BaseBot):
             x_, y_ = path[0]
 
         return vin.utils.path_to_command(x, y, x_, y_)
+
 
     def _random(self):
         return random.choice(['Stay', 'North', 'West', 'East', 'South'])
