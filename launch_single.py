@@ -10,7 +10,7 @@ def main():
         open_browser = True
     )
 
-    url = client.run(vindinium.bots.HunterBot())
+    url = client.run(vindinium.bots.MinerBot())
     print 'Replay in:', url
 
 if __name__ == '__main__':
