@@ -48,6 +48,7 @@ class AStar(object):
               include the goal.
             (None) otherwise.
         """
+
         # To avoid access on the dot
         cost_move = self.cost_move
         cost_avoid = self.cost_avoid
@@ -79,7 +80,7 @@ class AStar(object):
                 h_ = abs(x_ - x1) + abs(y_ - y1)
                 queue.push((x_, y_, g_, state), g_ + h_)
 
-        # If while does not break, it means that it didn't found any path
+        # If while does not break, no path was discovered.
         else:
             return None
 

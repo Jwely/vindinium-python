@@ -1,8 +1,9 @@
 import vindinium
 from vindinium.ai import AStar
+from operator import itemgetter
 
 __all__ = ['dir_to_command', 'command_to_dir', 'path_to_command',
-           'distance_manhattan', 'order_by_distance']
+           'distance_manhattan', 'order_by_distance', 'order_by_distance2']
 
 
 def dir_to_command(dx, dy):
@@ -113,4 +114,22 @@ def order_by_distance(x0, y0, objects, game_map = None):
         for obj in objects:
             obj.path_dist = distance_path(x0, y0, getattr(obj, "x"), getattr(obj, "y"), game_map)
         return sorted(objects, key = lambda item: item.path_dist)
+
+
+def order_by_distance2(x0, y0, objects, game_map = None):
+    """ this one returns a list of touples, with the first entry being the object, and
+    the second being the distance"""
+
+
+    if game_map is None:
+        distances = [distance_manhattan(x0, y0, obj.x, obj.y) for obj in objects]
+    else:
+        distances = [distance_path(x0, y0, obj.x, obj.y, game_map) for obj in objects]
+
+        objects, distances = zip(*sorted(zip(objects, distances)))
+        return zip(objects, distances)
+
+
+
+
 

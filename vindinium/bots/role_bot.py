@@ -39,9 +39,10 @@ class RoleBot(BaseBot):
 
         # each of these are dictionaries who's values are arrays
         valid_moves = self._valid_moves()
-
         best_move = random.choice(valid_moves.keys())
-        return
+
+        self._get_player_dists()
+        return best_move
 
 
 
@@ -101,6 +102,15 @@ class RoleBot(BaseBot):
                 pass
 
         return valid_moves
+
+    def _get_player_dists(self):
+        """ determines distances between every hero and every other hero"""
+
+        for hero in self.game.heroes:
+            x = hero.x
+            y = hero.y
+            hero.dist_to_heroes = vin.utils.order_by_distance2(x, y , self.game.heroes, self.game.map)
+        return
 
 
     def _go_to_nearest_tavern(self):

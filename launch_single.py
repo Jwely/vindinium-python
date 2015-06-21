@@ -8,7 +8,7 @@ def main():
         client = vindinium.Client(
             server = "http://vindinium.org",
             key = "aewjd4k0",    # jbot05
-            mode = "arena",
+            mode = "training",
             n_turns = 300,
             open_browser = True
         )
@@ -18,7 +18,7 @@ def main():
                  "kill" : 1.0,
                  "flee" : 1.0}
 
-        url = client.run(vindinium.bots.DecisionBot(props))
+        url = client.run(vindinium.bots.RoleBot(props))
         print 'Replay in:', url
 
 if __name__ == '__main__':
