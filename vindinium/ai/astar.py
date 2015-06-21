@@ -20,22 +20,25 @@ class AStar(object):
         avoid_tiles (list): a list of avoidable tile VALUES.
     """
 
-    def __init__(self, game_map, cost_avoid_hero = 8, cost_avoid = 4):
+    def __init__(self, game_map, cost_avoid_hero = 8, cost_avoid_spawn = 4):
         """Constructor.
 
         Args:
             map (vindinium.models.Map): the map instance.
             cost_avoid_hero:   acceptable cost of avoiding a hero occupied tile
             cost_avoid:        acceptable cost of avoiding an avoid tile (spawns)
+
+            Note that if a spawn and a hero are at the same location, that cost is
+            taken from the cost_avoid_hero variable!
         """
 
         self.cost_avoid_hero = cost_avoid_hero
-        self.cost_avoid_spawn = cost_avoid
+        self.cost_avoid_spawn = cost_avoid_spawn
         self.cost_move = 1
 
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
-        self.avoid_spawn = [vin.TILE_SPAWN]
-        self.avoid_heroes = [vin.TILE_HERO, vin.TILE_ADJ_HERO]
+        self.avoid_spawn    = [vin.TILE_SPAWN]
+        self.avoid_heroes   = [vin.TILE_HERO, vin.TILE_ADJ_HERO, vin.TILE_SPAWN_HERO]
 
         self._map = game_map
 

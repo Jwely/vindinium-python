@@ -77,7 +77,7 @@ class Game(object):
 
 
     def __processState(self, state):
-        """Process the state for the first time"""
+        """Process the state for the FIRST time"""
         # helper variables
         board = state['game']['board']
         size = board['size']
@@ -91,21 +91,32 @@ class Game(object):
                 tile = tiles[y * size + x]
                 if tile == '##':
                     self.map[x, y] = vin.TILE_WALL
+
                 elif tile == '[]':
                     self.map[x, y] = vin.TILE_TAVERN
                     self.taverns.append(Tavern(x, y))
+
                 elif tile.startswith('$'):
                     self.map[x, y] = vin.TILE_MINE
                     self.mines.append(Mine(x, y))
+
                 elif tile.startswith("@"):
                     self.map[x, y] = vin.TILE_HERO
+
                 else:
                     self.map[x, y] = vin.TILE_EMPTY
 
         # create heroes
         for hero in state['game']['heroes']:
+
             pos = hero['spawnPos']
-            self.map[pos['y'], pos['x']] = vin.TILE_SPAWN
+
+            # this is needed because sometimes heroes do not enter the match at their spawn points
+            if self.map[pos['y'], pos['x']] == vin.TILE_HERO:
+                self.map[pos['y'], pos['x']] = vin.TILE_SPAWN_HERO
+            else:
+                self.map[pos['y'], pos['x']] = vin.TILE_SPAWN
+
             self.heroes.append(Hero(hero))
 
 
@@ -122,9 +133,17 @@ class Game(object):
             for x in xrange(size):
                 tile = tiles[y * size + x]
                 if tile.startswith("@"):
-                    self.map[x, y] = vin.TILE_HERO
+
+                    if self.map[x, y] == vin.TILE_SPAWN or self.map[x, y] == vin.TILE_SPAWN_HERO:
+                        self.map[x, y] = vin.TILE_SPAWN_HERO
+                    else:
+                        self.map[x, y] = vin.TILE_HERO
+
                 elif tile == "  ":
-                    self.map[x, y] = vin.TILE_EMPTY
+                    if self.map[x, y] != vin.TILE_SPAWN and self.map[x, y] != vin.TILE_SPAWN_HERO:
+                        self.map[x, y] = vin.TILE_EMPTY
+                    else:
+                        self.map[x, y] = vin.TILE_SPAWN
 
         # set hero adjacency locations
         for y in xrange(size):
@@ -132,7 +151,6 @@ class Game(object):
                 tile = tiles[y * size + x]
 
                 if tile.startswith("@"):
-                    self.map[x, y] = vin.TILE_HERO
 
                     adj_list = [(x + 1, y),
                                 (x - 1, y),
@@ -141,7 +159,11 @@ class Game(object):
 
                     for adj in adj_list:
                         try:
-                            if self.map[adj[0], adj[1]] == vin.TILE_EMPTY:
+                            # several lengthy conditions
+                            empty = self.map[adj[0], adj[1]] == vin.TILE_EMPTY
+                            spawn = self.map[adj[0], adj[1]] == vin.TILE_SPAWN
+                            sphro = self.map[adj[0], adj[1]] == vin.TILE_SPAWN_HERO
+                            if empty and not spawn and not sphro:
                                 self.map[adj[0], adj[1]] = vin.TILE_ADJ_HERO
                         except IndexError:
                             pass

@@ -20,11 +20,18 @@ class BaseBot(RawBot):
     hero = None
 
 
-    def _log_brainwave(self, thought):
+    def _log_brainwave(self, thought, map = False):
         """ attaches a printout of the map state to the brainwave log """
-        brainwave = (thought, self.game.map.__str__(self.game.heroes))
+
+        if map:
+            brainwave = (thought, self.game.map.__str__(self.game.heroes))
+            print("{1} \n {0}".format(brainwave[0], brainwave[1]))
+
+        else:
+            brainwave = (thought, "")
+            print("{0}".format(brainwave[0]))
+
         self.brainwaves.append(brainwave)
-        print("{0} \n {1}".format(brainwave[0], brainwave[1]))
 
 
     def _start(self, state):

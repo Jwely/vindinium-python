@@ -30,7 +30,7 @@ class RoleBot(BaseBot):
 
     def start(self):
         thought = "I am {0} with [id = {1}]".format(self.hero.name, self.hero.id)
-        self._log_brainwave(thought)
+        self._log_brainwave(thought, map = True)
 
         # defines multiple pathfinding strategies for use in different scenarios
         self.search_aggressive = AStar(self.game.map, -1, 4) # prefers going through heroes
@@ -64,7 +64,11 @@ class RoleBot(BaseBot):
         best_move = random.choice(valid_moves.keys())
 
         self._get_player_dists()
-        self._log_brainwave("herp de derp")
+
+
+
+        self._log_brainwave("move: {0}".format(best_move), map = True)
+
         return best_move
 
 

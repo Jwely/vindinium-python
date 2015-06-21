@@ -48,7 +48,7 @@ class Map(object):
                     elif self[x, y] == vin.TILE_SPAWN:
                         s += " : "
 
-                    elif self[x, y] == vin.TILE_HERO:
+                    elif self[x, y] == vin.TILE_HERO or self[x, y] == vin.TILE_SPAWN_HERO:
                         if heroes is not None:
                             for hero in heroes:
                                 if hero.x == x and hero.y == y:

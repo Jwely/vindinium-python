@@ -40,13 +40,14 @@ from . import utils
 
 # CONSTANTS
 # tile values
-TILE_EMPTY      = 0
-TILE_WALL       = 1
-TILE_SPAWN      = 2
-TILE_TAVERN     = 3
-TILE_MINE       = 4
-TILE_HERO       = 5
-TILE_ADJ_HERO   = 6
+TILE_EMPTY      = 0     # space that may be freely moved through
+TILE_WALL       = 1     # a total blockage
+TILE_SPAWN      = 2     # any spawn location
+TILE_TAVERN     = 3     # any tavern location
+TILE_MINE       = 4     # any mine location
+TILE_HERO       = 5     # any hero location
+TILE_ADJ_HERO   = 6     # when a tile is adjacent to a hero
+TILE_SPAWN_HERO = 7     # when a hero and a spawn location are coincident
 
 # command values
 NORTH = 'North'
