@@ -7,7 +7,7 @@ def main():
         # Create a vindinium client
         client = vindinium.Client(
             server = "http://vindinium.org",
-            key = "aewjd4k0",
+            key = "3z0j970e",
             mode = "arena",
             n_turns = 300,
             open_browser = True

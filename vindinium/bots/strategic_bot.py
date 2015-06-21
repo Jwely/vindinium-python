@@ -21,10 +21,10 @@ class StrategicBot(BaseBot):
 
         # propensities
         if props is None:
-            props = {"mine" : 1.0,
-                     "drink": 1.0,
+            props = {"mine" : 3.0,
+                     "drink": 2.0,
                      "kill" : 1.0,
-                     "flee" : 1.0}
+                     "flee" : 2.0}
 
         self.propensity_to = props
         self.move_history  = ["Start"]
@@ -126,8 +126,9 @@ class StrategicBot(BaseBot):
         t_spawn = self.game.map[x, y] == vin.TILE_SPAWN
         t_tavern = self.game.map[x, y] == vin.TILE_TAVERN
         t_mine   = self.game.map[x, y] == vin.TILE_MINE
+        t_player = self._is_occupied_by_player(x, y)
 
-        if t_spawn or t_tavern or t_mine:
+        if t_spawn or t_tavern or t_mine or t_player:
             return 0
         else:
             return appeal
@@ -146,12 +147,28 @@ class StrategicBot(BaseBot):
         appeals = [p.mine_count * (100 - p.life) / (self._pd(p.path_dist)) for p in players]
         appeal = sum(appeals)
 
+        # if bot is right next to another player, who is closer to the tavern?
+        if players[0].path_dist >= 2:
+                me_taverns = vin.utils.order_by_distance(self.hero.x, self.hero.y,
+                                                         self.game.taverns, self.game.map)
+                me_min_dist = me_taverns.dist_path
+                he_taverns = vin.utils.order_by_distance(players[0].x, players[0].y,
+                                                         self.game.taverns, self.game.map)
+                he_min_dist = he_taverns.dist_path
+
+                enemy_closer_to_tavern  =  me_min_dist <= he_min_dist
+        else:
+            enemy_closer_to_tavern = False
+
+
         # bad tiles
         t_spawn = self.game.map[x, y] == vin.TILE_SPAWN
         t_tavern = self.game.map[x, y] == vin.TILE_TAVERN
         t_mine   = self.game.map[x, y] == vin.TILE_MINE
 
-        if t_spawn or t_tavern or t_mine:
+        # condition
+
+        if t_spawn or t_tavern or t_mine or enemy_closer_to_tavern:
             return 0
         else:
             return appeal
@@ -181,8 +198,9 @@ class StrategicBot(BaseBot):
         t_spawn = self.game.map[x, y] == vin.TILE_SPAWN
         t_tavern = self.game.map[x, y] == vin.TILE_TAVERN
         t_mine   = self.game.map[x, y] == vin.TILE_MINE
+        t_player = self._is_occupied_by_player(x, y)
 
-        if t_spawn or t_mine:
+        if t_spawn or t_mine or t_player:
             return 0
         elif t_tavern:
             return appeal * 2
@@ -219,8 +237,9 @@ class StrategicBot(BaseBot):
         t_spawn = self.game.map[x, y] == vin.TILE_SPAWN
         t_tavern = self.game.map[x, y] == vin.TILE_TAVERN
         t_mine   = self.game.map[x, y] == vin.TILE_MINE
+        t_player = self._is_occupied_by_player(x, y)
 
-        if t_spawn or t_tavern:
+        if t_spawn or t_tavern or t_player:
             return 0
         elif t_mine:
             if self._is_my_mine(x, y, mines):
@@ -239,6 +258,15 @@ class StrategicBot(BaseBot):
                 if mine.owner == self.hero.id:
                     print("I already own this mine")
                     return True
+        return False
+
+
+    def _is_occupied_by_player(self, x, y):
+        heroes = self.game.heroes
+
+        for hero in heroes:
+            if hero.x == x and hero.y == y:
+                return True
         return False
 
 
