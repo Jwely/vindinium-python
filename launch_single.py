@@ -18,7 +18,7 @@ def main():
                  "kill" : 1.0,
                  "flee" : 1.0}
 
-        url = client.run(vindinium.bots.RoleBot(props))
+        url = client.run(vindinium.bots.MinerBot(props))
         print 'Replay in:', url
 
 if __name__ == '__main__':

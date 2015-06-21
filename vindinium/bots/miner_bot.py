@@ -16,9 +16,11 @@ class MinerBot(BaseBot):
 
     def move(self):
         if self.hero.life < 45:
-            return self._go_to_nearest_tavern()
+            command = self._go_to_nearest_tavern()
         else:
-            return self._go_to_nearest_mine()
+            command =  self._go_to_nearest_mine()
+
+        self._log_brainwave(command, map = True)
 
 
     def _go_to_nearest_mine(self):
