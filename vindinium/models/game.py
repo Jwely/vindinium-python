@@ -43,6 +43,7 @@ class Game(object):
         # Process the state, creating the objects
         self.__processState(state)
 
+
     def update(self, state):
         """Updates the game with new information.
 
@@ -72,9 +73,11 @@ class Game(object):
             else:
                 mine.owner = int(char)
 
+        self.__processStateAgain(state)
+
 
     def __processState(self, state):
-        """Process the state."""
+        """Process the state for the first time"""
         # helper variables
         board = state['game']['board']
         size = board['size']
@@ -104,3 +107,43 @@ class Game(object):
             pos = hero['spawnPos']
             self.map[pos['y'], pos['x']] = vin.TILE_SPAWN
             self.heroes.append(Hero(hero))
+
+
+    def __processStateAgain(self, state):
+        """ update the map state with the dynamic components"""
+        # helper variables
+        board = state['game']['board']
+        size = board['size']
+        tiles = board['tiles']
+        tiles = [tiles[i:i + 2] for i in xrange(0, len(tiles), 2)]
+
+        # update tiles that might have changed, empties and heroes
+        for y in xrange(size):
+            for x in xrange(size):
+                tile = tiles[y * size + x]
+                if tile.startswith("@"):
+                    self.map[x, y] = vin.TILE_HERO
+                elif tile == "  ":
+                    self.map[x, y] = vin.TILE_EMPTY
+
+        # set hero adjacency locations
+        for y in xrange(size):
+            for x in xrange(size):
+                tile = tiles[y * size + x]
+
+                if tile.startswith("@"):
+                    self.map[x, y] = vin.TILE_HERO
+
+                    adj_list = [(x + 1, y),
+                                (x - 1, y),
+                                (x, y + 1),
+                                (x, y - 1)]
+
+                    for adj in adj_list:
+                        try:
+                            if self.map[adj[0], adj[1]] == vin.TILE_EMPTY:
+                                self.map[adj[0], adj[1]] = vin.TILE_ADJ_HERO
+                        except IndexError:
+                            pass
+
+

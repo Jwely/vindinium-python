@@ -32,10 +32,37 @@ class RoleBot(BaseBot):
 
     def start(self):
         print("I am {0} with id: {1}".format(self.hero.name, self.hero.id))
-        self.search = AStar(self.game.map)
+
+        # defines multiple pathfinding strategies for use in different scenarios
+        self.search_aggressive = AStar(self.game.map, -1, 4) # prefers going through heroes
+        self.search_default    = AStar(self.game.map, 1, 4)   # ignores heroes entirely
+        self.search_cautious   = AStar(self.game.map, 4, 4)   # prefers going around heroes
+        self.search_evade      = AStar(self.game.map, 8, 2)   # stays far away from heroes
+
+        # sets the default search
+        self._set_search()
+
+
+
+    def _set_search(self, strategy = "d"):
+        """ sets the default search strategy used when self.search is called """
+
+        if strategy == "a":
+            self.search = self.search_aggressive
+        elif strategy == "d":
+            self.search = self.search_default
+        elif strategy == "c":
+            self.search = self.search_cautious
+        elif strategy == " e":
+            self.search = self.search_evade
+        else:
+            self.search = self.search_default
 
 
     def move(self):
+
+        # print the map
+        print self.game.map
 
         # each of these are dictionaries who's values are arrays
         valid_moves = self._valid_moves()
@@ -102,6 +129,7 @@ class RoleBot(BaseBot):
                 pass
 
         return valid_moves
+
 
     def _get_player_dists(self):
         """ determines distances between every hero and every other hero"""

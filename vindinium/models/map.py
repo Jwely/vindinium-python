@@ -1,5 +1,6 @@
 __all__ = ['Map']
 
+import vindinium as vin
 
 class Map(object):
     """Represents static elements in the game, such as walls, paths, taverns,
@@ -29,11 +30,26 @@ class Map(object):
     def __str__(self):
         """Pretty map."""
         s = ' '
-        s += '-' * self.size + '\n'
+        s += '---' * self.size + '\n'
         for y in xrange(self.size):
             s += '|'
             for x in xrange(self.size):
-                s += str(self[x, y] or ' ')
+                if self[x, y]:
+                    if self[x, y] == vin.TILE_WALL:
+                        s += "<#>"
+                    elif self[x, y] == vin.TILE_TAVERN:
+                        s += " t "
+                    elif self[x, y] == vin.TILE_MINE:
+                        s += " $ "
+                    elif self[x, y] == vin.TILE_SPAWN:
+                        s += " : "
+                    elif self[x, y] == vin.TILE_HERO:
+                        s += "(0)"
+                    elif self[x, y] == vin.TILE_ADJ_HERO:
+                        s += " ~ "
+                else:
+                    s += "   "
+
             s += '|\n'
-        s += ' ' + '-'*(self.size)
+        s += ' ' + '---'*(self.size)
         return s

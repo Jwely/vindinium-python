@@ -35,7 +35,7 @@ class AStar(object):
 
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
         self.avoid_spawn = [vin.TILE_SPAWN]
-        self.avoid_heroes = [vin.TILE_HERO]
+        self.avoid_heroes = [vin.TILE_HERO, vin.TILE_ADJ_HERO]
 
         self._map = game_map
 
