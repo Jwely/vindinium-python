@@ -93,22 +93,24 @@ def distance_manhattan(x0, y0, x1, y1):
     return abs(x0 - x1) + abs(y0 - y1)
 
 
+def distance_path(x0, y0, x1, y1, game_map = None):
+
+    return len(AStar(game_map).find(x0, y0, x1, y1))
+
+
 def order_by_distance(x0, y0, objects, game_map = None):
     """Returns a list of objects ordered by distance from a given point.
 
     You can use this to order mines or taverns by their distances from the
     hero. will use simple manhattan distance if no game map is provided, but will
-    otherwise use real path distances
+    otherwise use real path distances.
     """
-
 
     if game_map is None:
         return sorted(objects, key = lambda item: distance_manhattan(x0, y0, item.x, item.y))
 
     else:
-        search = AStar(game_map)
         for obj in objects:
-            setattr(obj, "path_dist", len(search.find(x0, y0, obj.x, obj.y)))
-
+            obj.path_dist = distance_path(x0, y0, getattr(obj, "x"), getattr(obj, "y"), game_map)
         return sorted(objects, key = lambda item: item.path_dist)
 

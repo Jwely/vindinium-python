@@ -1,3 +1,5 @@
+__author__ = 'Jwely'
+
 import random
 import vindinium as vin
 from vindinium.bots import BaseBot
@@ -7,7 +9,7 @@ __all__ = ['HunterBot']
 
 
 class HunterBot(BaseBot):
-    """ this bot hunts the juiciest player"""
+    """ this bot hunts the juiciest player, it isn't very good"""
     
     search = None
 

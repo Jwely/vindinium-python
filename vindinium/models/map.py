@@ -29,7 +29,7 @@ class Map(object):
     def __str__(self):
         """Pretty map."""
         s = ' '
-        s += '-'*(self.size) + '\n'
+        s += '-' * self.size + '\n'
         for y in xrange(self.size):
             s += '|'
             for x in xrange(self.size):

@@ -67,7 +67,10 @@ class Game(object):
 
         for mine in self.mines:
             char = tiles[mine.x * 2 + mine.y * 2 * size + 1]
-            mine.owner = None if char == '-' else int(char)
+            if char == "-":
+                mine.owner = None
+            else:
+                mine.owner = int(char)
 
 
     def __processState(self, state):
