@@ -1,21 +1,20 @@
 __all__ = ['Tavern']
 
+
 class Tavern(object):
-    '''A tavern.
+    """A tavern.
 
     Attributes:
-        x (int): the tarven position in X.
-        y (int): the tarven position in Y.
-    '''
+        x (int): the tavern position in X.
+        y (int): the tavern position in Y.
+    """
 
     def __init__(self, x, y):
-        '''Constructor
+        """Constructor
 
         Args:
             x (int): the mine position in X.
             y (int): the mine position in Y.
-        '''
+        """
         self.x = x
         self.y = y
-
-

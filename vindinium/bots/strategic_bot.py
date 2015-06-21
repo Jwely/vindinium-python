@@ -36,7 +36,7 @@ class StrategicBot(BaseBot):
         return self._random()
 
 
-    def _mining_value(self):
+    def _mining_value(self, direction):
         x = self.hero.x
         y = self.hero.y
 

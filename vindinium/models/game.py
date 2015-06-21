@@ -3,8 +3,9 @@ from vindinium.models import Hero, Map, Tavern, Mine
 
 __all__ = ['Game']
 
+
 class Game(object):
-    '''Represents a game.
+    """Represents a game.
 
     A game object holds information about the game and is updated automatically
     by ``BaseBot``.
@@ -18,14 +19,14 @@ class Game(object):
         heroes (list): a list of Hero instances.
         mines (list): a list of Mine instances.
         taverns (list): a list of Tavern instances.
-    '''
+    """
 
     def __init__(self, state):
-        '''Constructor.
+        """Constructor.
 
         Args:
             state (dict): the state object.
-        '''
+        """
         # Constants
         self.id = state['game']['id']
         self.max_turns = state['game']['maxTurns']
@@ -43,14 +44,14 @@ class Game(object):
         self.__processState(state)
 
     def update(self, state):
-        '''Updates the game with new information.
+        """Updates the game with new information.
 
         Notice that, this function does not re-create the objects, just update
         the current objects with new information.
 
         Args:
             state (dict): the state object.
-        '''
+        """
         size = state['game']['board']['size']
         tiles = state['game']['board']['tiles']
         heroes = state['game']['heroes']
@@ -65,22 +66,23 @@ class Game(object):
             hero.y          = hero_state['pos']['x']
 
         for mine in self.mines:
-            char = tiles[mine.x*2 + mine.y*2*size + 1]
+            char = tiles[mine.x * 2 + mine.y * 2 * size + 1]
             mine.owner = None if char == '-' else int(char)
 
+
     def __processState(self, state):
-        '''Process the state.'''
+        """Process the state."""
         # helper variables
         board = state['game']['board']
         size = board['size']
         tiles = board['tiles']
-        tiles = [tiles[i:i+2] for i in xrange(0, len(tiles), 2)]
+        tiles = [tiles[i:i + 2] for i in xrange(0, len(tiles), 2)]
 
         # run through the map and update map, mines and taverns
         self.map = Map(size)
         for y in xrange(size):
             for x in xrange(size):
-                tile = tiles[y*size+x]
+                tile = tiles[y * size + x]
                 if tile == '##':
                     self.map[x, y] = vin.TILE_WALL
                 elif tile == '[]':

@@ -26,7 +26,7 @@ class MinerBot(BaseBot):
         y = self.hero.y
 
         # Order mines by distance
-        mines = vin.utils.order_by_distance(x, y, self.game.mines)
+        mines = vin.utils.order_by_distance(x, y, self.game.mines, self.game.map)
         for mine in mines:
 
             # Grab nearest mine that is not owned by this hero
@@ -44,7 +44,7 @@ class MinerBot(BaseBot):
         y = self.hero.y
 
         # Order taverns by distance
-        taverns = vin.utils.order_by_distance(x, y, self.game.taverns)
+        taverns = vin.utils.order_by_distance(x, y, self.game.taverns, self.game.map)
         for tavern in taverns:
             command = self._go_to(tavern.x, tavern.y)
 
