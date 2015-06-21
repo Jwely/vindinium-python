@@ -94,6 +94,8 @@ class Game(object):
                 elif tile.startswith('$'):
                     self.map[x, y] = vin.TILE_MINE
                     self.mines.append(Mine(x, y))
+                elif tile.startswith("@"):
+                    self.map[x, y] = vin.TILE_HERO
                 else:
                     self.map[x, y] = vin.TILE_EMPTY
 

@@ -46,6 +46,7 @@ TILE_WALL   = 1
 TILE_SPAWN  = 2
 TILE_TAVERN = 3
 TILE_MINE   = 4
+TILE_HERO   = 5
 
 # command values
 NORTH = 'North'

@@ -29,7 +29,7 @@ class AStar(object):
         self.cost_avoid = 4
         self.cost_move = 1
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
-        self.avoid_tiles = [vin.TILE_SPAWN]
+        self.avoid_tiles = [vin.TILE_SPAWN, vin.TILE_HERO]
         self._map = game_map
 
 
