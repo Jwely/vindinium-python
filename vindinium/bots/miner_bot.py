@@ -6,21 +6,23 @@ from vindinium.ai import AStar
 __all__ = ['MinerBot']
 
 class MinerBot(BaseBot):
-    """ this bots primary objective is to mine """
+    """ this bots primary objective is to mine , it avoids enemy heros"""
     
     search = None
 
     def start(self):
-        self.search = AStar(self.game.map, 4, 2)
+        ms = float(self.game.map.size)
+        self.search = AStar(self.game.map, ms / 2 , ms / 8)
 
 
     def move(self):
-        if self.hero.life < 45:
+        if self.hero.life < 50:
             command = self._go_to_nearest_tavern()
         else:
             command =  self._go_to_nearest_mine()
 
         self._log_brainwave(command, map = True)
+        return command
 
 
     def _go_to_nearest_mine(self):
@@ -38,7 +40,8 @@ class MinerBot(BaseBot):
                 if command:
                     return command
 
-        return self._random()
+        # if no mines could be navigated to, just go to the nearest tavern
+        return self._go_to_nearest_tavern()
 
 
     def _go_to_nearest_tavern(self):

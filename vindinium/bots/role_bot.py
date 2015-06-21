@@ -32,11 +32,12 @@ class RoleBot(BaseBot):
         thought = "I am {0} with [id = {1}]".format(self.hero.name, self.hero.id)
         self._log_brainwave(thought, map = True)
 
-        # defines multiple pathfinding strategies for use in different scenarios
-        self.search_aggressive = AStar(self.game.map, -1, 4) # prefers going through heroes
-        self.search_default    = AStar(self.game.map, 1, 4)   # ignores heroes entirely
-        self.search_cautious   = AStar(self.game.map, 2, 4)   # prefers going around heroes
-        self.search_evade      = AStar(self.game.map, 4, 2)   # stays far away from heroes
+        # defines multiple pathfinding strategies scaled to map size
+        ms = float(self.game.map.size)
+        self.search_aggressive = AStar(self.game.map, (-1), (ms / 4))       # prefers going through heroes
+        self.search_default    = AStar(self.game.map, (ms / 16), (ms / 4))  # ignores heroes entirely
+        self.search_cautious   = AStar(self.game.map, (ms / 8), (ms / 4))   # prefers going around heroes
+        self.search_evade      = AStar(self.game.map, (ms / 4), (ms / 8))   # stays far away from heroes
 
         # sets the default search
         self._set_search()
