@@ -35,8 +35,8 @@ class RoleBot(BaseBot):
         # defines multiple pathfinding strategies for use in different scenarios
         self.search_aggressive = AStar(self.game.map, -1, 4) # prefers going through heroes
         self.search_default    = AStar(self.game.map, 1, 4)   # ignores heroes entirely
-        self.search_cautious   = AStar(self.game.map, 4, 4)   # prefers going around heroes
-        self.search_evade      = AStar(self.game.map, 8, 2)   # stays far away from heroes
+        self.search_cautious   = AStar(self.game.map, 2, 4)   # prefers going around heroes
+        self.search_evade      = AStar(self.game.map, 4, 2)   # stays far away from heroes
 
         # sets the default search
         self._set_search()

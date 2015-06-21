@@ -11,7 +11,7 @@ class MinerBot(BaseBot):
     search = None
 
     def start(self):
-        self.search = AStar(self.game.map)
+        self.search = AStar(self.game.map, 4, 2)
 
 
     def move(self):
