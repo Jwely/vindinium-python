@@ -13,7 +13,6 @@ The library has the following features:
   - BaseBot: a bot that process the state and create and update a Game object.
   - RandomBot: a bot that perform random movements.
   - MinerBot: a bot that looks for mines continuously.
-  - AggressiveBot: a bot that only goes after other bots.
 
 - Models (used by base bot to create the game structure):
   - Game: stores all other models.

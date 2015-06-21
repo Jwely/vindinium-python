@@ -6,10 +6,10 @@ from vindinium.bots import BaseBot
 from vindinium.ai import AStar
 
 
-__all__ = ["StrategicBot"]
+__all__ = ["DecisionBot"]
 
 
-class StrategicBot(BaseBot):
+class DecisionBot(BaseBot):
     """ this bot makes decisions by weighing the value of the space
      it occupies, as well as the surrounding 4 spaces. It uses propensities
      to mine, drink, kill, and flee, which can be randomly altered to
@@ -17,14 +17,14 @@ class StrategicBot(BaseBot):
      """
 
     def __init__(self, props = None):
-        super(StrategicBot, self).__init__()
+        super(DecisionBot, self).__init__()
 
         # propensities
         if props is None:
-            props = {"mine" : 3.0,
-                     "drink": 2.0,
+            props = {"mine" : 1.0,
+                     "drink": 1.0,
                      "kill" : 1.0,
-                     "flee" : 2.0}
+                     "flee" : 1.0}
 
         self.propensity_to = props
         self.move_history  = ["Start"]
@@ -67,32 +67,15 @@ class StrategicBot(BaseBot):
             best_move = random.choice(move_values.keys())
 
         # print the decision
-        message = "moved {0}  F:{1:.2f}  K:{2:.2f}  D:{3:.2f}  M:{4:.2f}  HP:{5}".format(
-                    best_move, move_values[best_move][0], move_values[best_move][1],
-                    move_values[best_move][2], move_values[best_move][3], self.hero.life)
+        message = "moved {0} Fl:{1:.2f}  Ki:{2:.2f}  Dr:{3:.2f}  Mi:{4:.2f} [HP-{5} G-{6} M-{7}]".format(
+                    best_move.ljust(6), move_values[best_move][0], move_values[best_move][1],
+                    move_values[best_move][2], move_values[best_move][3],
+                    self.hero.life, self.hero.gold, self.hero.mine_count)
 
         print(message)
         self.move_history.append(message)
 
         return best_move
-
-
-    def _valid_moves(self) :
-        x = self.hero.x
-        y = self.hero.y
-
-        moves = {vin.STAY : (x, y),
-                 vin.NORTH: (x, y - 1),
-                 vin.WEST : (x - 1, y),
-                 vin.EAST : (x + 1, y),
-                 vin.SOUTH: (x, y + 1)}
-
-        valid_moves = {}
-        for key in moves:
-            if self.game.map[moves[key]] != vin.TILE_WALL:
-                valid_moves[key] = moves[key]
-
-        return valid_moves
 
 
     def _total_value_of_point(self, x, y):
@@ -119,8 +102,16 @@ class StrategicBot(BaseBot):
         players = [p for p in self.game.heroes if p.id != self.hero.id]
         players = vin.utils.order_by_distance(x, y, players, self.game.map)
 
-        appeals = [1 + (float(p.path_dist) ** 0.25) * (100 - self.hero.life) / 100 for p in players]
+        appeals = [float(p.path_dist) * (100 - self.hero.life) / 100 for p in players]
+
         appeal = sum(appeals) * (self.hero.mine_count / len(self.game.mines))
+
+        # tiles close than 3 tiles away from multiple players with more health are bad
+        factor = 1.0
+        for player in players:
+            if player.life > self.hero.life:
+                if player.path_dist <= 2:
+                    factor *= 0.5
 
         # bad tiles
         t_spawn = self.game.map[x, y] == vin.TILE_SPAWN
@@ -131,7 +122,7 @@ class StrategicBot(BaseBot):
         if t_spawn or t_tavern or t_mine or t_player:
             return 0
         else:
-            return appeal
+            return appeal * factor
 
 
     def _kill_value_of_point(self, x, y):
@@ -144,40 +135,53 @@ class StrategicBot(BaseBot):
         players = [p for p in self.game.heroes if p.id != self.hero.id]
         players = vin.utils.order_by_distance(x, y, players, self.game.map)
 
-        appeals = [p.mine_count * (100 - p.life) / (self._pd(p.path_dist)) for p in players]
+        num_mines = len(self.game.mines)
+
+        appeals = [10 * num_mines * ((p.mine_count / num_mines) ** 2) *
+                   (100 - p.life) / (self._pd(p.path_dist)) for p in players]
+
         appeal = sum(appeals)
 
         # if bot is right next to another player, who is closer to the tavern?
-        if players[0].path_dist >= 2:
+        if players[0].path_dist <= 2:
                 me_taverns = vin.utils.order_by_distance(self.hero.x, self.hero.y,
                                                          self.game.taverns, self.game.map)
-                me_min_dist = me_taverns.dist_path
+                me_min_dist = me_taverns[0].path_dist
                 he_taverns = vin.utils.order_by_distance(players[0].x, players[0].y,
                                                          self.game.taverns, self.game.map)
-                he_min_dist = he_taverns.dist_path
+                he_min_dist = he_taverns[0].path_dist
 
-                enemy_closer_to_tavern  =  me_min_dist <= he_min_dist
+                # if enemy is closer to tavern, begin to abort the fight
+                abort  =  me_min_dist >= he_min_dist
+
+                # if the players life is less than 20, appeal overwhelms
+                if players[0].life <= 20:
+                    print("kill attempt on player {0}".format(players[0].id))
+                    return appeal * 5
+
+                # if bots life is more than 51 greater than player, override abort
+                if (players[0].life + 51) <= self.hero.life:
+                    abort = False
         else:
-            enemy_closer_to_tavern = False
+            abort = False
 
 
         # bad tiles
-        t_spawn = self.game.map[x, y] == vin.TILE_SPAWN
         t_tavern = self.game.map[x, y] == vin.TILE_TAVERN
         t_mine   = self.game.map[x, y] == vin.TILE_MINE
 
         # condition
-
-        if t_spawn or t_tavern or t_mine or enemy_closer_to_tavern:
+        if t_tavern or t_mine or abort:
             return 0
         else:
             return appeal
+
 
     def _drink_value_of_point(self, x, y):
         """
         determined by distance to closest tavern and health of hero.
         Getting closer to a tavern becomes more important when health is
-        bellow 50.
+        much more important when health is lower
         """
 
         # orders taverns by path distance from input xy
@@ -185,22 +189,14 @@ class StrategicBot(BaseBot):
         path_dist = taverns[0].path_dist
 
         # calculate the final appeal
-        if self.hero.life > 60:
-            fac = 1
-        elif self.hero.life >40:
-            fac = 3
-        else:
-            fac = 9
-
-        appeal = fac * (100 - self.hero.life) / (10 * self._pd(path_dist))
+        appeal = (100 - self.hero.life) ** 2 / (100 * (self._pd(path_dist) ** 0.5))
 
         # bad tiles
-        t_spawn = self.game.map[x, y] == vin.TILE_SPAWN
         t_tavern = self.game.map[x, y] == vin.TILE_TAVERN
         t_mine   = self.game.map[x, y] == vin.TILE_MINE
         t_player = self._is_occupied_by_player(x, y)
 
-        if t_spawn or t_mine or t_player:
+        if t_mine or t_player:
             return 0
         elif t_tavern:
             return appeal * 2
@@ -209,7 +205,15 @@ class StrategicBot(BaseBot):
 
 
     def _mine_value_of_point(self, x, y):
-        """ determined by distance to 4 closest mines """
+        """
+        determined by distance to 4 closest mines. mines with no owner
+        are much more appealing than those with an owner.
+        a hero is not at all interested in mining if his health is low.
+        """
+
+        # a weak hero will not be interested in mining
+        if self.hero.life <= 50:
+            return 0
 
         # orders mines by shortest path distance and removes those owned by this bot
         mines = vin.utils.order_by_distance(x, y, self.game.mines, self.game.map)
@@ -219,27 +223,31 @@ class StrategicBot(BaseBot):
                 bad_mines.append(mine)
 
         path_dists = [m.path_dist for m in bad_mines]
+        mine_vals  = [2 if m.owner is None else 1 for m in bad_mines]
 
         # calculate the final appeal for mines and mine clusters
         if len(path_dists) == 0:
             return 0
 
         elif len(path_dists) >= 4:
-            appeal = (8 / self._pd(path_dists[0]) +
-                      4 / self._pd(path_dists[1]) +
-                      2 / self._pd(path_dists[2]) +
-                      1 / self._pd(path_dists[3]))
+            appeal = ((5 ** mine_vals[0]) / self._pd(path_dists[0]) +
+                      (4 ** mine_vals[1]) / self._pd(path_dists[1]) +
+                      (3 ** mine_vals[2]) / self._pd(path_dists[2]) +
+                      (2 ** mine_vals[3]) / self._pd(path_dists[3])) / 2
 
+        elif len(path_dists) >= 2:
+            appeal = ((4 ** mine_vals[0]) / self._pd(path_dists[0]) +
+                      (3 ** mine_vals[1]) / self._pd(path_dists[1])) / 2
         else:
-            appeal = 8 / self._pd(path_dists[0])
+            appeal = (6 ** mine_vals[0]) / self._pd(path_dists[0]) / 2
+
 
         # bad tiles
-        t_spawn = self.game.map[x, y] == vin.TILE_SPAWN
         t_tavern = self.game.map[x, y] == vin.TILE_TAVERN
         t_mine   = self.game.map[x, y] == vin.TILE_MINE
         t_player = self._is_occupied_by_player(x, y)
 
-        if t_spawn or t_tavern or t_player:
+        if t_tavern or t_player:
             return 0
         elif t_mine:
             if self._is_my_mine(x, y, mines):
@@ -282,6 +290,27 @@ class StrategicBot(BaseBot):
             return float(path_dist)
         else:
             return 0.5
+
+
+    def _valid_moves(self) :
+        x = self.hero.x
+        y = self.hero.y
+
+        moves = {vin.STAY : (x, y),
+                 vin.NORTH: (x, y - 1),
+                 vin.WEST : (x - 1, y),
+                 vin.EAST : (x + 1, y),
+                 vin.SOUTH: (x, y + 1)}
+
+        valid_moves = {}
+        for key in moves:
+            try:
+                if self.game.map[moves[key]] != vin.TILE_WALL:
+                    valid_moves[key] = moves[key]
+            except IndexError:
+                pass
+
+        return valid_moves
 
 
     def _go_to(self, x_, y_):

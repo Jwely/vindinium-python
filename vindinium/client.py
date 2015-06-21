@@ -126,6 +126,7 @@ class Client(object):
         # Get response
         if r.status_code == 200:
             state = r.json()
+            print('Connected! Playing game at: %s', state['viewUrl'])
             logging.info('Connected! Playing game at: %s', state['viewUrl'])
 
             # Open browser if ``open_browser`` is True

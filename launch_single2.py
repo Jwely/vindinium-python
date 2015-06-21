@@ -7,16 +7,16 @@ def main():
         # Create a vindinium client
         client = vindinium.Client(
             server = "http://vindinium.org",
-            key = "aewjd4k0",    # jbot05
+            key = "mpsm2rzk",   #jbot03
             mode = "arena",
             n_turns = 300,
-            open_browser = True
+            open_browser = False
         )
 
-        props = {"mine" : 1.0,
-                 "drink": 1.0,
-                 "kill" : 1.0,
-                 "flee" : 1.0}
+        props = {"mine" : 10.0,
+                 "drink": 3.0,
+                 "kill" : 4.0,
+                 "flee" : 3.0}
 
         url = client.run(vindinium.bots.DecisionBot(props))
         print 'Replay in:', url
