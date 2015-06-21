@@ -37,10 +37,6 @@ class HunterBot(BaseBot):
             else:
                 command = self._go_to_nearest_tavern()
 
-        # if a mine happens to be just a short distance away, go to it.
-        if self._dist_to_nearest_mine() < 1:
-            command = self._go_to_nearest_mine()
-
         return command
 
 
@@ -66,7 +62,7 @@ class HunterBot(BaseBot):
         command = self._go_to(hero.x, hero.y)
 
         if command:
-            print("hunting player {0}({1})".format(hero.name, hero.id))
+            print("{0} hunting player {1}({2})".format(self.hero.name, hero.name, hero.id))
             return command
         else:
             return self._random
@@ -92,7 +88,7 @@ class HunterBot(BaseBot):
             command = self._go_to(tavern.x, tavern.y)
 
             if command:
-                print("nearest tavern")
+                print("{0} going to nearest tavern".format(self.hero.name))
                 return command
 
         return self._random()
@@ -110,8 +106,6 @@ class HunterBot(BaseBot):
         return 999
 
 
-
-
     def _go_to_nearest_mine(self):
         x = self.hero.x
         y = self.hero.y
@@ -125,7 +119,7 @@ class HunterBot(BaseBot):
                 command = self._go_to(mine.x, mine.y)
 
                 if command:
-                    print("nearest mine")
+                    print("{0} going to nearest mine".format(self.hero.name))
                     return command
 
         return self._random()
@@ -149,4 +143,4 @@ class HunterBot(BaseBot):
 
 
     def _random(self):
-        return random.choice(['Stay', 'North', 'West', 'East', 'South'])
+        return random.choice(['North', 'West', 'East', 'South'])

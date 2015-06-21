@@ -1,4 +1,5 @@
 import vindinium
+from vindinium.ai import AStar
 
 __all__ = ['dir_to_command', 'command_to_dir', 'path_to_command',
            'distance_manhattan', 'order_by_distance']
@@ -107,5 +108,6 @@ def order_by_distance(x, y, objects):
     Returns:
         (list) an ordered copy of ``objects``.
     """
+
 
     return sorted(objects, key=lambda item: distance_manhattan(x, y, item.x, item.y))
