@@ -20,16 +20,23 @@ class AStar(object):
         avoid_tiles (list): a list of avoidable tile VALUES.
     """
 
-    def __init__(self, game_map):
+    def __init__(self, game_map, cost_avoid_hero = 8, cost_avoid = 4):
         """Constructor.
 
         Args:
             map (vindinium.models.Map): the map instance.
+            cost_avoid_hero:   acceptable cost of avoiding a hero occupied tile
+            cost_avoid:        acceptable cost of avoiding an avoid tile (spawns)
         """
-        self.cost_avoid = 4
+
+        self.cost_avoid_hero = cost_avoid_hero
+        self.cost_avoid_spawn = cost_avoid
         self.cost_move = 1
+
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
-        self.avoid_tiles = [vin.TILE_SPAWN, vin.TILE_HERO]
+        self.avoid_spawn = [vin.TILE_SPAWN]
+        self.avoid_heroes = [vin.TILE_HERO]
+
         self._map = game_map
 
 
@@ -51,7 +58,8 @@ class AStar(object):
 
         # To avoid access on the dot
         cost_move = self.cost_move
-        cost_avoid = self.cost_avoid
+        cost_avoid = self.cost_avoid_spawn
+        cost_avoid_hero = self.cost_avoid_hero
         game_map = self._map
         adjacent = False
 
@@ -76,7 +84,16 @@ class AStar(object):
             # Children
             for x_, y_ in self.__neighbors(x, y, visited):
                 tile = game_map[x_, y_]
-                g_ = g + (cost_avoid if tile in self.avoid_tiles else cost_move)
+
+                # determine cost based on tile type
+                if tile in self.avoid_spawn:
+                    cost = cost_avoid
+                elif tile in self.avoid_heroes:
+                    cost = cost_avoid_hero
+                else:
+                    cost = cost_move
+
+                g_ = g + cost
                 h_ = abs(x_ - x1) + abs(y_ - y1)
                 queue.push((x_, y_, g_, state), g_ + h_)
 
