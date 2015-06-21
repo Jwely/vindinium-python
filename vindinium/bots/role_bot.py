@@ -27,11 +27,10 @@ class RoleBot(BaseBot):
                      "flee" : 2.0}
 
         self.propensity_to = props
-        self.move_history  = ["Start"]
-
 
     def start(self):
-        print("I am {0} with id: {1}".format(self.hero.name, self.hero.id))
+        thought = "I am {0} with [id = {1}]".format(self.hero.name, self.hero.id)
+        self._log_brainwave(thought)
 
         # defines multiple pathfinding strategies for use in different scenarios
         self.search_aggressive = AStar(self.game.map, -1, 4) # prefers going through heroes
@@ -41,7 +40,6 @@ class RoleBot(BaseBot):
 
         # sets the default search
         self._set_search()
-
 
 
     def _set_search(self, strategy = "d"):
@@ -61,14 +59,12 @@ class RoleBot(BaseBot):
 
     def move(self):
 
-        # print the map
-        print self.game.map
-
         # each of these are dictionaries who's values are arrays
         valid_moves = self._valid_moves()
         best_move = random.choice(valid_moves.keys())
 
         self._get_player_dists()
+        self._log_brainwave("herp de derp")
         return best_move
 
 
@@ -79,7 +75,6 @@ class RoleBot(BaseBot):
         for mine in mines:
             if mine.x == x and mine.y == y:
                 if mine.owner == self.hero.id:
-                    print("I already own this mine")
                     return True
         return False
 

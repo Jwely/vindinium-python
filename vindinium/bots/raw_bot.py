@@ -18,7 +18,6 @@ class RawBot(object):
     id = None
     state = None
 
-
     def _start(self, state):
         """Wrapper to start method."""
         self.id = state['hero']['id']

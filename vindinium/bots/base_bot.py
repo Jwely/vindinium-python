@@ -20,12 +20,20 @@ class BaseBot(RawBot):
     hero = None
 
 
+    def _log_brainwave(self, thought):
+        """ attaches a printout of the map state to the brainwave log """
+        brainwave = (thought, self.game.map.__str__(self.game.heroes))
+        self.brainwaves.append(brainwave)
+        print("{0} \n {1}".format(brainwave[0], brainwave[1]))
+
+
     def _start(self, state):
         """ Wrapper to start method """
         self.id = state['hero']['id']
         self.state = state
         self.game = Game(state)
         self.hero = self.game.heroes[self.id - 1]
+        self.brainwaves = []
         self.start()
 
 
