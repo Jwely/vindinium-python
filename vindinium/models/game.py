@@ -5,7 +5,7 @@ __all__ = ['Game']
 
 
 class Game(object):
-    """Represents a game.
+    """ Represents a game.
 
     A game object holds information about the game and is updated automatically
     by ``BaseBot``.
@@ -41,7 +41,7 @@ class Game(object):
         self.taverns = []
 
         # Process the state, creating the objects
-        self.__processState(state)
+        self.__processStartingState(state)
 
 
     def update(self, state):
@@ -73,11 +73,11 @@ class Game(object):
             else:
                 mine.owner = int(char)
 
-        self.__processStateAgain(state)
+        self.__processNewState(state)
 
 
-    def __processState(self, state):
-        """Process the state for the FIRST time"""
+    def __processStartingState(self, state):
+        """ Process the state for the FIRST time only."""
         # helper variables
         board = state['game']['board']
         size = board['size']
@@ -120,8 +120,8 @@ class Game(object):
             self.heroes.append(Hero(hero))
 
 
-    def __processStateAgain(self, state):
-        """ update the map state with the dynamic components"""
+    def __processNewState(self, state):
+        """ update the map state with the dynamic components """
         # helper variables
         board = state['game']['board']
         size = board['size']
@@ -145,7 +145,7 @@ class Game(object):
                     else:
                         self.map[x, y] = vin.TILE_SPAWN
 
-        # set hero adjacency locations
+        # update hero adjacency locations used for preferential pathfinding
         for y in xrange(size):
             for x in xrange(size):
                 tile = tiles[y * size + x]

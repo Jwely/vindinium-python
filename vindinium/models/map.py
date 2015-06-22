@@ -46,7 +46,7 @@ class Map(object):
                         s += " $ "
 
                     elif self[x, y] == vin.TILE_SPAWN:
-                        s += " : "
+                        s += " + "
 
                     elif self[x, y] == vin.TILE_HERO or self[x, y] == vin.TILE_SPAWN_HERO:
                         if heroes is not None:
@@ -57,7 +57,7 @@ class Map(object):
                             s += "(0)"
 
                     elif self[x, y] == vin.TILE_ADJ_HERO:
-                        s += " ~ "
+                        s += " ' "
 
                 # blank spaces
                 else:

@@ -13,11 +13,11 @@ class AStar(object):
     compute the best path when necessary. 
 
     Attributes:
-        cost_avoid (float): cost to walk over an avoidable tile (consult the
-          avoid_tiles attribute). Defaults to 4.
-        cost_move (float): cost to walk over an empty tile. Defaults to 1.
-        obstacle_tiles (list): a list of obstacles tile VALUES.
-        avoid_tiles (list): a list of avoidable tile VALUES.
+        cost_avoid (float):     cost to walk over an avoidable tile (consult the
+                                    avoid_tiles attribute). Defaults to 4.
+        cost_move (float):      cost to walk over an empty tile. Defaults to 1.
+        obstacle_tiles (list):  a list of obstacles tile VALUES.
+        avoid_tiles (list):     a list of avoidable tile VALUES.
     """
 
     def __init__(self, game_map, cost_avoid_hero = 8, cost_avoid_spawn = 4):
@@ -28,21 +28,17 @@ class AStar(object):
             cost_avoid_hero:   acceptable cost of avoiding a hero occupied tile
             cost_avoid:        acceptable cost of avoiding an avoid tile (spawns)
 
-            going adjacent to a hero scales with the cost of avoiding heros,
-            but it is always less cost to go adjacent to a hero than through one
-            Note that if a spawn and a hero are at the same location, that cost is
-            taken from the cost_avoid_hero variable!
+            avoiding heroes actually avoids spaces adjacent to heroes
         """
 
-        self.cost_avoid_hero     = round(cost_avoid_hero, 0)
-        self.cost_avoid_spawn    = round(cost_avoid_spawn, 0)
-        self.cost_avoid_adjacent = 0.75 * self.cost_avoid_hero
+        self.cost_avoid_hero  = round(cost_avoid_hero, 0)
+        self.cost_avoid_spawn = round(cost_avoid_spawn, 0)
         self.cost_move = 1
+
 
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
         self.avoid_spawn    = [vin.TILE_SPAWN]
-        self.avoid_heroes   = [vin.TILE_HERO, vin.TILE_SPAWN_HERO]
-        self.avoid_adjacent = [vin.TILE_ADJ_HERO]
+        self.avoid_heroes   = [vin.TILE_ADJ_HERO, vin.TILE_HERO, vin.TILE_SPAWN_HERO]
 
         self._map = game_map
 
@@ -67,7 +63,6 @@ class AStar(object):
         cost_move = self.cost_move
         cost_avoid = self.cost_avoid_spawn
         cost_avoid_hero = self.cost_avoid_hero
-        cost_avoid_adjacent = self.cost_avoid_adjacent
         game_map = self._map
         adjacent = False
 
@@ -99,9 +94,6 @@ class AStar(object):
 
                 elif tile in self.avoid_heroes:
                     cost = cost_avoid_hero
-
-                elif tile in self.avoid_adjacent:
-                    cost = cost_avoid_adjacent
                 else:
                     cost = cost_move
 

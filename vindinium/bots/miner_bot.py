@@ -5,17 +5,25 @@ from vindinium.ai import AStar
 
 __all__ = ['MinerBot']
 
+
 class MinerBot(BaseBot):
-    """ this bots primary objective is to mine , it avoids enemy heros"""
+    """ this bots primary objective is to mine , it avoids enemy heroes"""
     
     search = None
 
     def start(self):
+        self._update_pathfinding()
+
+
+    def _update_pathfinding(self):
         ms = float(self.game.map.size)
-        self.search = AStar(self.game.map, ms / 2 , ms / 8)
+        self.search = AStar(self.game.map, ms / 2 , 3)
 
 
     def move(self):
+
+        self._update_pathfinding()
+
         if self.hero.life < 50:
             command = self._go_to_nearest_tavern()
         else:
@@ -30,8 +38,9 @@ class MinerBot(BaseBot):
         y = self.hero.y
 
         # Order mines by distance
-        mines = vin.utils.order_by_distance(x, y, self.game.mines, self.game.map)
-        for mine in mines:
+        mines, dists = vin.utils.order_by_distance(x, y, self.game.mines, self.game.map, self.search)
+
+        for i, mine in enumerate(mines):
 
             # Grab nearest mine that is not owned by this hero
             if mine.owner != self.hero.id:
@@ -49,7 +58,7 @@ class MinerBot(BaseBot):
         y = self.hero.y
 
         # Order taverns by distance
-        taverns = vin.utils.order_by_distance(x, y, self.game.taverns, self.game.map)
+        taverns, dist = vin.utils.order_by_distance(x, y, self.game.taverns, self.game.map, self.search)
         for tavern in taverns:
             command = self._go_to(tavern.x, tavern.y)
 
@@ -57,23 +66,3 @@ class MinerBot(BaseBot):
                 return command
 
         return self._random()
-
-
-    def _go_to(self, x_, y_):
-        x = self.hero.x
-        y = self.hero.y
-
-        # Compute path to the mine
-        path = self.search.find(x, y, x_, y_)
-
-        # Send command to follow that path
-        if path is None:
-            return
-
-        elif len(path) > 0:
-            x_, y_ = path[0]
-
-        return vin.utils.path_to_command(x, y, x_, y_)
-
-    def _random(self):
-        return random.choice(['Stay', 'North', 'West', 'East', 'South'])
