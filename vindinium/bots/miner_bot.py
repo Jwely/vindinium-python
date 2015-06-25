@@ -38,7 +38,6 @@ class MinerBot(BaseBot):
 
         # send random command if hero has been still for 3+ turns
         if self.is_still(4):
-            print("Becoming unstuck")
             command = self._random()
 
         return command
@@ -55,7 +54,6 @@ class MinerBot(BaseBot):
         for i, mine in enumerate(mines):
 
             if not mine.friendly:
-                print("headed to mine at {0},{1}".format(mine.x, mine.y))
                 command = self._go_to(mine.x, mine.y)
                 return command
 
