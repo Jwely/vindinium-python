@@ -1,5 +1,6 @@
 __all__ = ['Hero']
 
+import vindinium as vin
 
 class Hero(object):
     """Represents a hero in the game.
@@ -29,6 +30,7 @@ class Hero(object):
         # Constants
         self.id         = hero['id']
         self.name       = hero['name']
+        self.friendly   = self.name in vin.FRIENDLY
         self.user_id    = hero.get('userId')
         self.elo        = hero.get('elo')
         

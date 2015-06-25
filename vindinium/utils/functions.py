@@ -5,6 +5,7 @@ __all__ = ['dir_to_command',
            'command_to_dir',
            'path_to_command',
            'distance_manhattan',
+           'distance_path',
            'order_by_distance']
 
 
@@ -112,24 +113,36 @@ def distance_path(x0, y0, x1, y1, game_map, searcher = None):
     if searcher is None:
         searcher = AStar(game_map)
 
-    return len(searcher.find(x0, y0, x1, y1))
+    if searcher.find(x0, y0, x1, y1) is not None:
+        return len(searcher.find(x0, y0, x1, y1))
+    else:
+        return 0
 
 
-def order_by_distance(x0, y0, objects, game_map = None, searcher = None):
+def order_by_distance(x0, y0, objects, game_map = None, searcher = None, lim = 10):
     """ orders a list of objects by distance from input x0 and y0.
 
     if a game map and AStar AI pathfinder instance are provided, the distances
     will be according to the pathfinder which accounts for obstacles, current
     player positions, and avoidance preferences. if a game_map and searcher are
     not provided this function returns the simple manhattan distance.
-    """
-    if game_map is None:
-        distances = [distance_manhattan(x0, y0, obj.x, obj.y) for obj in objects]
-    else:
-        distances = [distance_path(x0, y0, obj.x, obj.y, game_map, searcher) for obj in objects]
 
+    only provides the nearest 10
+    """
+
+    distances = [distance_manhattan(x0, y0, obj.x, obj.y) for obj in objects]
+    distances, objects = zip(*sorted(zip(distances, objects)))
+
+    if len(distances) > lim:
+        distances = distances[:lim]
+        objects   = objects[:lim]
+
+    if game_map is not None:
+        distances = [distance_path(x0, y0, obj.x, obj.y, game_map, searcher) for obj in objects]
         distances, objects = zip(*sorted(zip(distances, objects)))
-        return objects, distances
+
+    return objects, distances
+
 
 
 

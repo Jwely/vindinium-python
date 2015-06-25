@@ -43,7 +43,7 @@ def launch_bot(bot, key, continuous = False, mode = "training", tmap = "m1"):
 if __name__ == '__main__':
 
     launch_bot(vindinium.bots.MinerBot(),
-               read_keys()[0],
+               read_keys()[2],
                continuous = True,
                mode = "arena",
                tmap = "m3")

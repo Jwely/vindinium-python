@@ -21,7 +21,7 @@ def launch_bot(bot, key, continuous = False, mode = "training", tmap = "m1"):
                 key = key,
                 mode = mode,
                 n_turns = 300,
-                open_browser = True
+                open_browser = False
             )
 
             client.run(bot)
@@ -43,7 +43,7 @@ def launch_bot(bot, key, continuous = False, mode = "training", tmap = "m1"):
 if __name__ == '__main__':
 
     launch_bot(vindinium.bots.MinerBot(),
-               read_keys()[0],
-               continuous = False,
+               read_keys()[1],
+               continuous = True,
                mode = "arena",
                tmap = "m3")

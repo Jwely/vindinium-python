@@ -23,35 +23,24 @@ class BaseBot():
 
 
     def start(self):
-        thought = "I am {0} with [id = {1}]".format(self.hero.name, self.hero.id)
-        self._log_brainwave(thought, map = True)
         return
 
 
     def move(self):
-        return
+        return self._random
 
 
     def end(self):
-        self._log_brainwave("==== Final scores ====")
+        print("==== Final scores ====")
         for hero in self.game.heroes:
-            thought = "{0} {1}".format(hero.name.ljust(15), hero.gold)
-            self._log_brainwave(thought)
+            print("{0} {1}".format(hero.name.ljust(15), hero.gold))
         return
 
-
-    def _log_brainwave(self, thought, map = False):
-        """ attaches a printout of the map state to the brainwave log """
-
-        if map:
-            brainwave = (thought, self.game.map.__str__(self.game.heroes))
-            print("{1} \n {0}".format(brainwave[0], brainwave[1]))
-
-        else:
-            brainwave = (thought, "")
-            print("{0}".format(brainwave[0]))
-
-        self.brainwaves.append(brainwave)
+    def is_still(self, num_turns):
+        """
+        returns True if hero has been still for num_turns turns
+        """
+        return False
 
 
     def _start(self, state):
@@ -60,7 +49,8 @@ class BaseBot():
         self.state = state
         self.game = Game(state)
         self.hero = self.game.heroes[self.id - 1]
-        self.brainwaves = []
+
+        print("I am {0}".format(self.hero.name))
         self.start()
 
 

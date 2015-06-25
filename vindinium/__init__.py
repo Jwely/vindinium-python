@@ -66,3 +66,6 @@ DIR_STAY  = (0, 0)
 
 # adjacency list
 DIR_NEIGHBORS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+# friendly bot list
+FRIENDLY = ["jbot01", "jbot02", "jbot03", "jbot04", "jbot05", "jwely"]

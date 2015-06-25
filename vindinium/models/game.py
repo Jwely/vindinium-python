@@ -1,5 +1,7 @@
 import vindinium as vin
 from vindinium.models import Hero, Map, Tavern, Mine
+from vindinium.ai import AStar
+from vindinium.utils.functions import distance_path, distance_manhattan
 
 __all__ = ['Game']
 
@@ -42,6 +44,22 @@ class Game(object):
 
         # Process the state, creating the objects
         self.__processStartingState(state)
+        self.announce()
+
+
+    def announce(self):
+        """
+        prints some heads up announcements about the game
+        """
+        print self.map
+        print("-Hero-----------ID--ELO---Stance-")
+        for hero in self.heroes:
+            if hero.friendly:
+                label = "Ally"
+            else:
+                label = "Enemy"
+
+            print("{0} {1}  {2}  {3}".format(hero.name.ljust(16), hero.id, hero.elo, label))
 
 
     def update(self, state, hero_id = None):
@@ -58,6 +76,8 @@ class Game(object):
         tiles = state['game']['board']['tiles']
         heroes = state['game']['heroes']
 
+        unit_searcher = AStar(self.empty_map, 1, 1, 1)
+
         # update the heroes
         for hero, hero_state in zip(self.heroes, heroes):
             hero.crashed    = hero_state['crashed']
@@ -68,15 +88,17 @@ class Game(object):
             hero.x          = hero_state['pos']['y']
             hero.y          = hero_state['pos']['x']
 
+
         # update the mines
         for mine in self.mines:
             char = tiles[mine.x * 2 + mine.y * 2 * size + 1]
             if char == "-":
                 mine.owner = None
+                mine.friendly = False
             else:
                 mine.owner = int(char)
+                mine.friendly = self.heroes[mine.owner - 1].friendly
 
-                board = state['game']['board']
 
         # set the map to empty and refill it with hero information
         for y in xrange(size):
@@ -86,28 +108,30 @@ class Game(object):
 
                 for hero in self.heroes:
 
-                    # logical checks
-                    is_mine        = self.map[x, y] == vin.TILE_MINE
-                    is_wall        = self.map[x, y] == vin.TILE_WALL
-                    is_tavern      = self.map[x, y] == vin.TILE_TAVERN
-                    is_spawn       = self.map[x, y] == vin.TILE_SPAWN
+                    # for performance, only check tiles near the hero
+                    if distance_manhattan(hero.x, hero.y, x, y) < 3:
+                        # logical checks
+                        is_mine        = self.map[x, y] == vin.TILE_MINE
+                        is_wall        = self.map[x, y] == vin.TILE_WALL
+                        is_tavern      = self.map[x, y] == vin.TILE_TAVERN
+                        is_spawn       = self.map[x, y] == vin.TILE_SPAWN
 
-                    is_now_hero    = hero.x == x and hero.y == y
-                    is_now_adj     = vin.utils.distance_manhattan(hero.x, hero.y, x, y) == 1
-                    is_now_near    = vin.utils.distance_manhattan(hero.x, hero.y, x, y) == 2
+                        is_now_hero    = hero.x == x and hero.y == y
+                        is_now_adj     = distance_path(hero.x, hero.y, x, y, self.empty_map, unit_searcher) == 1
+                        is_now_near    = distance_path(hero.x, hero.y, x, y, self.empty_map, unit_searcher) == 2
 
-                    if is_now_hero and is_spawn:
-                        self.map[x, y] = vin.TILE_SPAWN_HERO
-                    elif is_now_hero:
-                        self.map[x, y] = vin.TILE_HERO
+                        if is_now_hero and is_spawn:
+                            self.map[x, y] = vin.TILE_SPAWN_HERO
+                        elif is_now_hero:
+                            self.map[x, y] = vin.TILE_HERO
 
-                    # only set adjacencies if they are about an enemy hero.
-                    if hero_id is not None and hero.id != hero_id:
-                        if is_now_adj and not any([is_mine, is_wall, is_tavern, is_spawn, is_now_hero]):
-                            self.map[x, y] = vin.TILE_ADJ_HERO
+                        # only set adjacency's if they are about an enemy hero.
+                        if hero_id is not None and hero.id != hero_id:
+                            if is_now_adj and not any([is_mine, is_wall, is_tavern, is_spawn, is_now_hero]):
+                                self.map[x, y] = vin.TILE_ADJ_HERO
 
-                        if is_now_near and not any([is_mine, is_wall, is_tavern, is_spawn, is_now_hero, is_now_adj]):
-                            self.map[x, y] = vin.TILE_NEAR_HERO
+                            if is_now_near and not any([is_mine, is_wall, is_tavern, is_spawn, is_now_hero, is_now_adj]):
+                                self.map[x, y] = vin.TILE_NEAR_HERO
 
 
 

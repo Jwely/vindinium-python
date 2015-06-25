@@ -1,4 +1,3 @@
-import random
 import vindinium as vin
 from vindinium.bots import BaseBot
 from vindinium.ai import AStar
@@ -7,7 +6,10 @@ __all__ = ['MinerBot']
 
 
 class MinerBot(BaseBot):
-    """ this bots primary objective is to mine , it avoids enemy heroes"""
+    """
+    this bots primary objective is to mine. It avoids all
+    other heros, and does not capture friendly bots mines.
+    """
     
     search = None
 
@@ -17,19 +19,28 @@ class MinerBot(BaseBot):
 
     def _update_pathfinding(self):
         ms = float(self.game.map.size)
-        self.search = AStar(self.game.map, 16, 8, 4)
+        self.search = AStar(self.game.map, ms * 4, ms * 4, 5)
 
 
     def move(self):
 
         self._update_pathfinding()
 
-        if self.hero.life < 50:
+        t, td = vin.utils.order_by_distance(self.hero.x, self.hero.y,
+                                    self.game.taverns, self.game.map, self.search)
+
+        if self.hero.life < 30:
+            command = self._go_to_nearest_tavern()
+        elif self.hero.life < 80 and td[0] < 2:
             command = self._go_to_nearest_tavern()
         else:
-            command =  self._go_to_nearest_mine()
+            command = self._go_to_nearest_mine()
 
-        self._log_brainwave(command, map = True)
+        # send random command if hero has been still for 3+ turns
+        if self.is_still(4):
+            print("Becoming unstuck")
+            command = self._random()
+
         return command
 
 
@@ -37,19 +48,17 @@ class MinerBot(BaseBot):
         x = self.hero.x
         y = self.hero.y
 
-        # Order mines by distance
-        mines, dists = vin.utils.order_by_distance(x, y, self.game.mines, self.game.map, self.search)
+        command = None
+        mines, dists = vin.utils.order_by_distance(x, y, self.game.mines,
+                                    self.game.map, self.search, lim = len(self.game.mines))
 
         for i, mine in enumerate(mines):
 
-            # Grab nearest mine that is not owned by this hero
-            if mine.owner != self.hero.id:
+            if not mine.friendly:
+                print("headed to mine at {0},{1}".format(mine.x, mine.y))
                 command = self._go_to(mine.x, mine.y)
+                return command
 
-                if command:
-                    return command
-
-        # if no mines could be navigated to, just go to the nearest tavern
         return self._go_to_nearest_tavern()
 
 
