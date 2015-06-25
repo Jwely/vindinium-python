@@ -67,7 +67,7 @@ class BaseBot():
     def _move(self, state):
         """ Wrapper to move method, called by client """
         self.state = state
-        self.game.update(state)
+        self.game.update(state, self.hero.id)
         return self.move()
 
 

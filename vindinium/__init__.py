@@ -46,8 +46,9 @@ TILE_SPAWN      = 2     # any spawn location
 TILE_TAVERN     = 3     # any tavern location
 TILE_MINE       = 4     # any mine location
 TILE_HERO       = 5     # any hero location
-TILE_ADJ_HERO   = 6     # when a tile is adjacent to a hero
-TILE_SPAWN_HERO = 7     # when a hero and a spawn location are coincident
+TILE_ADJ_HERO   = 6     # when a tile is adjacent to a hero (one move away)
+TILE_NEAR_HERO  = 7     # when a tile is adjacent to a hero adjacent tile (two moves away)
+TILE_SPAWN_HERO = 8     # when a hero and a spawn location are coincident
 
 # command values
 NORTH = 'North'
@@ -57,11 +58,11 @@ EAST  = 'East'
 STAY  = 'Stay'
 
 # direction
-DIR_NORTH = (-1,  0)
-DIR_SOUTH = ( 1,  0)
-DIR_WEST  = ( 0, -1)
-DIR_EAST  = ( 0,  1)
-DIR_STAY  = ( 0,  0)
+DIR_NORTH = (-1, 0)
+DIR_SOUTH = (1, 0)
+DIR_WEST  = (0, -1)
+DIR_EAST  = (0, 1)
+DIR_STAY  = (0, 0)
 
 # adjacency list
 DIR_NEIGHBORS = [(-1, 0), (1, 0), (0, -1), (0, 1)]

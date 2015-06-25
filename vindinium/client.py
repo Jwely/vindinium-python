@@ -39,6 +39,7 @@ class Client(object):
 
     def __init__(self, key,
                     mode = 'training',
+                    training_map = 'm1',
                     n_turns = 300,
                     server = 'http://vindinium.org',
                     open_browser = False):
@@ -58,6 +59,7 @@ class Client(object):
 
         self.key = key
         self.mode = mode
+        self.training_map = training_map
         self.n_turns = n_turns
         self.server = server
         self.open_browser = open_browser
@@ -116,7 +118,7 @@ class Client(object):
             params = {'key': self.key}
             endpoint = '/api/arena'
         else:
-            params = {'key': self.key, 'turns': self.n_turns, 'map': 'm1'}
+            params = {'key': self.key, 'turns': self.n_turns, 'map': self.training_map}
             endpoint = '/api/training'
     
         # Connect

@@ -20,7 +20,7 @@ class AStar(object):
         avoid_tiles (list):     a list of avoidable tile VALUES.
     """
 
-    def __init__(self, game_map, cost_avoid_hero = 8, cost_avoid_spawn = 4):
+    def __init__(self, game_map, cost_adj = 8, cost_near = 6, cost_spawn = 4):
         """Constructor.
 
         Args:
@@ -28,17 +28,19 @@ class AStar(object):
             cost_avoid_hero:   acceptable cost of avoiding a hero occupied tile
             cost_avoid:        acceptable cost of avoiding an avoid tile (spawns)
 
-            avoiding heroes actually avoids spaces adjacent to heroes
+            costs input is as follows [avoid_adjacency, avoid_nearness, avoid_spawn_points]
         """
 
-        self.cost_avoid_hero  = round(cost_avoid_hero, 0)
-        self.cost_avoid_spawn = round(cost_avoid_spawn, 0)
+        self.cost_avoid_adj   = cost_adj
+        self.cost_avoid_near  = cost_near
+        self.cost_avoid_spawn = cost_spawn
         self.cost_move = 1
 
 
         self.obstacle_tiles = [vin.TILE_WALL, vin.TILE_TAVERN, vin.TILE_MINE]
         self.avoid_spawn    = [vin.TILE_SPAWN]
-        self.avoid_heroes   = [vin.TILE_ADJ_HERO, vin.TILE_HERO, vin.TILE_SPAWN_HERO]
+        self.avoid_adj      = [vin.TILE_ADJ_HERO, vin.TILE_HERO, vin.TILE_SPAWN_HERO]
+        self.avoid_near     = [vin.TILE_NEAR_HERO]
 
         self._map = game_map
 
@@ -60,9 +62,6 @@ class AStar(object):
         """
 
         # To avoid access on the dot
-        cost_move = self.cost_move
-        cost_avoid = self.cost_avoid_spawn
-        cost_avoid_hero = self.cost_avoid_hero
         game_map = self._map
         adjacent = False
 
@@ -90,12 +89,16 @@ class AStar(object):
 
                 # determine cost based on tile type
                 if tile in self.avoid_spawn:
-                    cost = cost_avoid
+                    cost = self.cost_avoid_spawn
 
-                elif tile in self.avoid_heroes:
-                    cost = cost_avoid_hero
+                elif tile in self.avoid_adj:
+                    cost = self.cost_avoid_adj
+
+                elif tile in self.avoid_near:
+                    cost = self.cost_avoid_near
+
                 else:
-                    cost = cost_move
+                    cost = self.cost_move
 
                 g_ = g + cost
                 h_ = abs(x_ - x1) + abs(y_ - y1)

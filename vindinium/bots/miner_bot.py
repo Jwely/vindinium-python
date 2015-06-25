@@ -17,7 +17,7 @@ class MinerBot(BaseBot):
 
     def _update_pathfinding(self):
         ms = float(self.game.map.size)
-        self.search = AStar(self.game.map, ms / 2 , 3)
+        self.search = AStar(self.game.map, 16, 8, 4)
 
 
     def move(self):

@@ -44,7 +44,7 @@ class Game(object):
         self.__processStartingState(state)
 
 
-    def update(self, state):
+    def update(self, state, hero_id = None):
         """Updates the game with new information.
 
         Notice that, this function does not re-create the objects, just update
@@ -52,11 +52,13 @@ class Game(object):
 
         Args:
             state (dict): the state object.
+            hero_id int: the id of friendly hero
         """
         size = state['game']['board']['size']
         tiles = state['game']['board']['tiles']
         heroes = state['game']['heroes']
-        
+
+        # update the heroes
         for hero, hero_state in zip(self.heroes, heroes):
             hero.crashed    = hero_state['crashed']
             hero.mine_count = hero_state['mineCount']
@@ -66,6 +68,7 @@ class Game(object):
             hero.x          = hero_state['pos']['y']
             hero.y          = hero_state['pos']['x']
 
+        # update the mines
         for mine in self.mines:
             char = tiles[mine.x * 2 + mine.y * 2 * size + 1]
             if char == "-":
@@ -73,7 +76,39 @@ class Game(object):
             else:
                 mine.owner = int(char)
 
-        self.__processNewState(state)
+                board = state['game']['board']
+
+        # set the map to empty and refill it with hero information
+        for y in xrange(size):
+            for x in xrange(size):
+
+                self.map[x, y] = self.empty_map[x, y]
+
+                for hero in self.heroes:
+
+                    # logical checks
+                    is_mine        = self.map[x, y] == vin.TILE_MINE
+                    is_wall        = self.map[x, y] == vin.TILE_WALL
+                    is_tavern      = self.map[x, y] == vin.TILE_TAVERN
+                    is_spawn       = self.map[x, y] == vin.TILE_SPAWN
+
+                    is_now_hero    = hero.x == x and hero.y == y
+                    is_now_adj     = vin.utils.distance_manhattan(hero.x, hero.y, x, y) == 1
+                    is_now_near    = vin.utils.distance_manhattan(hero.x, hero.y, x, y) == 2
+
+                    if is_now_hero and is_spawn:
+                        self.map[x, y] = vin.TILE_SPAWN_HERO
+                    elif is_now_hero:
+                        self.map[x, y] = vin.TILE_HERO
+
+                    # only set adjacencies if they are about an enemy hero.
+                    if hero_id is not None and hero.id != hero_id:
+                        if is_now_adj and not any([is_mine, is_wall, is_tavern, is_spawn, is_now_hero]):
+                            self.map[x, y] = vin.TILE_ADJ_HERO
+
+                        if is_now_near and not any([is_mine, is_wall, is_tavern, is_spawn, is_now_hero, is_now_adj]):
+                            self.map[x, y] = vin.TILE_NEAR_HERO
+
 
 
     def __processStartingState(self, state):
@@ -86,30 +121,38 @@ class Game(object):
 
         # run through the map and update map, mines and taverns
         self.map = Map(size)
+        self.empty_map = Map(size)
         for y in xrange(size):
             for x in xrange(size):
                 tile = tiles[y * size + x]
                 if tile == '##':
                     self.map[x, y] = vin.TILE_WALL
+                    self.empty_map[x, y] = vin.TILE_WALL
 
                 elif tile == '[]':
                     self.map[x, y] = vin.TILE_TAVERN
+                    self.empty_map[x, y] = vin.TILE_TAVERN
                     self.taverns.append(Tavern(x, y))
 
                 elif tile.startswith('$'):
                     self.map[x, y] = vin.TILE_MINE
+                    self.empty_map[x, y] = vin.TILE_MINE
                     self.mines.append(Mine(x, y))
 
                 elif tile.startswith("@"):
                     self.map[x, y] = vin.TILE_HERO
+                    self.empty_map[x, y] = vin.TILE_EMPTY
 
                 else:
                     self.map[x, y] = vin.TILE_EMPTY
+                    self.empty_map[x, y] = vin.TILE_EMPTY
 
         # create heroes
         for hero in state['game']['heroes']:
 
             pos = hero['spawnPos']
+
+            self.empty_map[pos['y'], pos['x']] = vin.TILE_SPAWN
 
             # this is needed because sometimes heroes do not enter the match at their spawn points
             if self.map[pos['y'], pos['x']] == vin.TILE_HERO:
@@ -118,54 +161,5 @@ class Game(object):
                 self.map[pos['y'], pos['x']] = vin.TILE_SPAWN
 
             self.heroes.append(Hero(hero))
-
-
-    def __processNewState(self, state):
-        """ update the map state with the dynamic components """
-        # helper variables
-        board = state['game']['board']
-        size = board['size']
-        tiles = board['tiles']
-        tiles = [tiles[i:i + 2] for i in xrange(0, len(tiles), 2)]
-
-        # update tiles that might have changed, empties and heroes
-        for y in xrange(size):
-            for x in xrange(size):
-                tile = tiles[y * size + x]
-                if tile.startswith("@"):
-
-                    if self.map[x, y] == vin.TILE_SPAWN or self.map[x, y] == vin.TILE_SPAWN_HERO:
-                        self.map[x, y] = vin.TILE_SPAWN_HERO
-                    else:
-                        self.map[x, y] = vin.TILE_HERO
-
-                elif tile == "  ":
-                    if self.map[x, y] != vin.TILE_SPAWN and self.map[x, y] != vin.TILE_SPAWN_HERO:
-                        self.map[x, y] = vin.TILE_EMPTY
-                    else:
-                        self.map[x, y] = vin.TILE_SPAWN
-
-        # update hero adjacency locations used for preferential pathfinding
-        for y in xrange(size):
-            for x in xrange(size):
-                tile = tiles[y * size + x]
-
-                if tile.startswith("@"):
-
-                    adj_list = [(x + 1, y),
-                                (x - 1, y),
-                                (x, y + 1),
-                                (x, y - 1)]
-
-                    for adj in adj_list:
-                        try:
-                            # several lengthy conditions
-                            empty = self.map[adj[0], adj[1]] == vin.TILE_EMPTY
-                            spawn = self.map[adj[0], adj[1]] == vin.TILE_SPAWN
-                            sphro = self.map[adj[0], adj[1]] == vin.TILE_SPAWN_HERO
-                            if empty and not spawn and not sphro:
-                                self.map[adj[0], adj[1]] = vin.TILE_ADJ_HERO
-                        except IndexError:
-                            pass
 
 
